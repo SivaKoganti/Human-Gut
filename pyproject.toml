@@ -12,7 +12,6 @@ license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [
     { name = "Siva Koganti" },
-    { name = "Karuna Rasineni" },
 ]
 keywords = ["gut-liver axis", "ODE", "systems biology", "LSEC", "EBV"]
 classifiers = [

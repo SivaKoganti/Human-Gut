@@ -6,9 +6,8 @@ Project site: https://sivakoganti.github.io/Human-Gut/
 
 This repository contains the multi-scale mathematical modeling pipeline, AASLD abstract, and computational framework for investigating the gut–liver–immune axis, EBV-associated gastric carcinoma (EBVaGC), ClinVar genomic risk profiles (`CDH1`, `NOD2`), and LSEC capillarization.
 
-## Co-Authors
-- **Siva Koganti** (Department of Medicine, University of Florida) - Co-Corresponding Author
-- **Karuna Rasineni** - Co-Corresponding Author
+## Authors
+- **Siva Koganti** (Department of Medicine, University of Florida) - Corresponding Author
 
 ## Model Overview
 - **Percolation Mechanics**: Site-bond percolation ($p_c \approx 0.50$) modeling mucosal barrier breach.

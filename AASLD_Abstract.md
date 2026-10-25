@@ -2,7 +2,7 @@
 
 **Title**: Multi-Scale Field-Prize Mathematical Modeling of the Gut–Liver–Immune Axis in EBV-Associated Gastric Carcinoma and Viral Hepatitis: Decoding LSEC Defenestration, Mucosal Percolation, and Therapeutic Rescue Pathways
 
-**Authors**: Siva Koganti (Co-Corresponding Author), Karuna Rasineni (Co-Corresponding Author), Advanced Gut–Liver Interdisciplinary Research Consortium
+**Authors**: Siva Koganti (Corresponding Author), Advanced Gut–Liver Interdisciplinary Research Consortium
 
 ### Background & Aims
 The gut–liver–immune axis forms a critical vascular and mucosal continuum connecting gastrointestinal mucosal barrier integrity, systemic microbial balance, and hepatic sinusoidal endothelial cell (LSEC) filtration mechanics. We developed a multi-scale mathematical model combining ClinVar germline genetic risk factors (`CDH1`, `NOD2`, `TFF1`, `TLR4`, `CLEC4M`), Epstein–Barr Virus-Associated Gastric Carcinoma (EBVaGC) viral kinetics ($EBER1/2$ non-coding RNAs), and mathematical mechanics (percolation theory, Fourier restriction bounds, and matroid Hodge theory) to predict disease trajectories and test multi-target therapeutic rescue protocols.
