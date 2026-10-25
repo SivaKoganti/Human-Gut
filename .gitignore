@@ -7,3 +7,7 @@ venv/
 .claude/
 .DS_Store
 Thumbs.db
+build/
+dist/
+*.egg-info/
+.pytest_cache/

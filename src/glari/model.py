@@ -1,8 +1,7 @@
-"""GLARI: Gut-Liver Axis Risk & Intervention simulation pipeline.
+"""GLARI model: genotype sampling, parameters, and the five-state ODE system.
 
-Integrates a five-state ODE model of the gut-liver-immune axis for a patient
-genotype, with and without a multi-target intervention, and reports Day-30
-outcomes.
+Models the gut-liver-immune axis for a patient genotype, with and without a
+multi-target intervention.
 
 State vector y = [p, f, delta, lam, D]
     p      mucosal tight-junction integrity (percolation occupancy, 0-1)
@@ -12,8 +11,6 @@ State vector y = [p, f, delta, lam, D]
     D      pathobiont dysbiosis index
 """
 
-import argparse
-import sys
 from dataclasses import dataclass
 
 import numpy as np
@@ -129,42 +126,3 @@ def simulate(y0, params, days, treat):
             raise RuntimeError(f"Solver failed at day {sol.t[-1]:.2f}: {sol.message}")
         state = sol.y[:, -1]
     return state
-
-
-def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--seed", type=int, default=42, help="RNG seed for reproducible genomic sampling")
-    parser.add_argument("--days", type=float, default=30.0, help="Simulation horizon in days")
-    parser.add_argument("--variants", nargs="*", default=list(DEFAULT_VARIANTS),
-                        help="ClinVar variant IDs carried by the patient")
-    parser.add_argument("--no-ebv", action="store_true", help="Simulate EBV-negative disease")
-    return parser.parse_args(argv)
-
-
-def main(argv=None):
-    args = parse_args(argv)
-    if args.days <= 0:
-        sys.exit("--days must be positive")
-
-    rng = np.random.default_rng(args.seed)
-    try:
-        p_penalties, gc_weights = sample_patient_genomics_mc(args.variants, CLINVAR_DB, rng)
-    except ValueError as exc:
-        sys.exit(str(exc))
-
-    params = ModelParams(gc_risk_factor=float(gc_weights[0]), ebv_active=not args.no_ebv)
-    y0 = initial_state(p_penalties[0])
-
-    try:
-        untreated = simulate(y0, params, args.days, treat=False)
-        treated = simulate(y0, params, args.days, treat=True)
-    except RuntimeError as exc:
-        sys.exit(f"Simulation did not complete: {exc}")
-
-    print("GLARI Simulation Pipeline Complete.")
-    print(f"Untreated Final Load (Day {args.days:g}): {untreated[1]:.2f} EU/mL | Integrity p = {untreated[0]:.2f}")
-    print(f"Treated Final Load (Day {args.days:g}):   {treated[1]:.2f} EU/mL | Integrity p = {treated[0]:.2f}")
-
-
-if __name__ == "__main__":
-    main()

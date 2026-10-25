@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "GLARI: Multi-Scale Gut-Liver-Immune Axis Computational Model"
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/SivaKoganti/Human-Gut"
+url: "https://sivakoganti.github.io/Human-Gut/"
+authors:
+  - family-names: Koganti
+    given-names: Siva
+    affiliation: "Department of Medicine, University of Florida"
+  - family-names: Rasineni
+    given-names: Karuna

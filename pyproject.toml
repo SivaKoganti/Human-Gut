@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glari"
+version = "0.1.0"
+description = "Multi-scale ODE model of the gut-liver-immune axis (GLARI)"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "Siva Koganti" },
+    { name = "Karuna Rasineni" },
+]
+keywords = ["gut-liver axis", "ODE", "systems biology", "LSEC", "EBV"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "numpy>=1.22,<3",
+    "pandas>=1.4,<4",
+    "scipy>=1.8,<2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+glari = "glari.cli:main"
+
+[project.urls]
+Homepage = "https://sivakoganti.github.io/Human-Gut/"
+Source = "https://github.com/SivaKoganti/Human-Gut"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

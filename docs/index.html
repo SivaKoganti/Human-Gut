@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="GLARI: an open ODE model of the gut-liver-immune axis, genotype risk, and multi-target therapy.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>GLARI Gut-Liver Model</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --surface: #ffffff; --text: #1d2125; --muted: #5b636b;
+    --border: #e3e0d8; --accent: #2f6f5e; --warn-bg: #fff5e0; --warn-border: #e6b64c;
+    --code-bg: #f2f0ea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #15181b; --surface: #1d2125; --text: #e8e6e1; --muted: #a2a9b0;
+      --border: #30363c; --accent: #7cc4ad; --warn-bg: #2d2615; --warn-border: #a37d2a;
+      --code-bg: #24292e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 1.25rem; margin: 40px 0 12px; }
+  .lede { color: var(--muted); font-size: 1.1rem; margin: 0 0 24px; }
+  a { color: var(--accent); }
+  .notice { background: var(--warn-bg); border-left: 4px solid var(--warn-border);
+    padding: 12px 16px; border-radius: 6px; }
+  .notice p { margin: 4px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-size: .95rem; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-weight: 600; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; }
+  tr:last-child td { border-bottom: 0; }
+  .scroll { overflow-x: auto; }
+  pre, code { font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace; font-size: .9rem; }
+  pre { background: var(--code-bg); padding: 12px 16px; border-radius: 6px; overflow-x: auto; }
+  code { background: var(--code-bg); padding: 1px 4px; border-radius: 4px; }
+  pre code { background: none; padding: 0; }
+  footer { margin-top: 48px; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--border); padding-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>GLARI: Gut-Liver Axis Risk &amp; Intervention model</h1>
+  <p class="lede">An open, reproducible five-state ODE model linking gut barrier failure, portal endotoxin load,
+    liver sinusoidal endothelial (LSEC) fenestration, microbiome resilience and dysbiosis, with ClinVar genotype
+    risk and a combined day-15 therapy.</p>
+
+  <div class="notice">
+    <p><strong>Work in progress.</strong> <code>D_max</code> and <code>k_kupffer</code> are placeholder values
+      chosen to keep the system bounded, not fitted to data. A healthy untreated patient still declines, so the
+      model is not yet calibrated, and it does not reproduce the figures in the AASLD abstract draft.</p>
+    <p><strong>Not for clinical use.</strong></p>
+  </div>
+
+  <h2>Model state</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Variable</th><th>Meaning</th><th>Units</th></tr></thead>
+    <tbody>
+      <tr><td><code>p</code></td><td>Mucosal tight-junction integrity (percolation threshold p<sub>c</sub> = 0.50)</td><td>0–1</td></tr>
+      <tr><td><code>f</code></td><td>Portal endotoxin / viral load</td><td>EU/mL</td></tr>
+      <tr><td><code>delta</code></td><td>LSEC fenestral diameter</td><td>25–105 nm</td></tr>
+      <tr><td><code>lam</code></td><td>Microbial network resilience</td><td>0–1</td></tr>
+      <tr><td><code>D</code></td><td>Pathobiont dysbiosis index</td><td>≥ 0</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>How it works</h2>
+  <ul>
+    <li>Gut influx into the portal vein rises steeply (sigmoid) as integrity <code>p</code> falls below p<sub>c</sub>,
+      and scales with gastric cancer stage, genotype risk and EBV status.</li>
+    <li>Load is cleared by the LSEC sieve (∝ fenestral area), the microbial network, and Kupffer cells.</li>
+    <li>High load shrinks fenestrae, erodes integrity and resilience, and drives logistic dysbiosis growth.</li>
+    <li>From day 15 the treated arm adds butyrate/SCFA barrier repair, an sGC stimulator, a synbiotic and pathobiont suppression.</li>
+    <li>Integration uses SciPy's implicit <code>Radau</code> solver, split at the therapy switch; solver failures stop the run with an error.</li>
+  </ul>
+
+  <h2>Current output (v0.1.0, seed 42, day 30)</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Patient</th><th>Arm</th><th class="num">Load f (EU/mL)</th><th class="num">Integrity p</th></tr></thead>
+    <tbody>
+      <tr><td>CDH1 + NOD2, EBV+</td><td>Untreated</td><td class="num">32.46</td><td class="num">0.02</td></tr>
+      <tr><td>CDH1 + NOD2, EBV+</td><td>Treated</td><td class="num">2.29</td><td class="num">0.60</td></tr>
+      <tr><td>No variants, EBV−</td><td>Untreated</td><td class="num">7.65</td><td class="num">0.02</td></tr>
+      <tr><td>No variants, EBV−</td><td>Treated</td><td class="num">0.03</td><td class="num">0.83</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Run it locally</h2>
+<pre><code>git clone https://github.com/SivaKoganti/Human-Gut.git
+cd Human-Gut
+python -m venv .venv
+.venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
+pip install -e ".[dev]"
+glari --seed 42                  # or: python -m glari --variants --no-ebv
+pytest</code></pre>
+
+  <h2>Cite &amp; license</h2>
+  <p>Siva Koganti and Karuna Rasineni. <em>GLARI: Multi-Scale Gut-Liver-Immune Axis Computational Model</em>, v0.1.0.
+    Citation metadata is in <code>CITATION.cff</code>. Released under the MIT License.</p>
+
+  <footer>
+    Source: <a href="https://github.com/SivaKoganti/Human-Gut">github.com/SivaKoganti/Human-Gut</a>
+  </footer>
+</main>
+</body>
+</html>
