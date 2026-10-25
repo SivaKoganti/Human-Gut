@@ -28,4 +28,11 @@ python glari_pipeline.py --seed 42
 Options: `--seed` (reproducible genomic sampling), `--days` (horizon, default 30), `--variants` (ClinVar IDs), `--no-ebv`.
 
 ## Status
-With the current parameter set the model diverges within the first 2 days for every genotype tested (including no variants and `--no-ebv`) (dysbiosis `D` and portal load `f` grow without bound) and the solver stops. The pipeline now reports this and exits with an error rather than printing partial values. The Results figures in `AASLD_Abstract.md` are not yet reproduced by this code.
+The original equations diverged within 2 days for every genotype (unbounded dysbiosis feedback, saturating clearance, unbounded integrity loss). Three structural fixes keep the system bounded:
+1. Logistic cap on dysbiosis growth: `0.20 * f/(1+f) * D * (1 - D/D_max)`.
+2. Integrity loss scales with remaining junctions (`* p`); `lam` is no longer clipped in the rate equations.
+3. Kupffer-cell clearance term `k_kupffer * f` on portal load.
+
+`D_max` and `k_kupffer` in `ModelParams` are **placeholders** chosen only to keep the system bounded. They are not fitted to data and must be replaced with literature-derived values.
+
+Known gap: a healthy, untreated patient (`--variants --no-ebv`) still declines (Day-30 `p = 0.02`), because the initial state is not a steady state. Gut influx scale and `D_0` still need calibration. The Results figures in `AASLD_Abstract.md` are not reproduced by this code.

@@ -61,6 +61,10 @@ class ModelParams:
     ebv_active: bool = True
     gc_risk_factor: float = 1.0
     therapy_start: float = 15.0  # Day the combined intervention begins
+    # PLACEHOLDERS: chosen only to keep the system bounded, not fitted to data.
+    # Replace with literature-derived values before reporting results.
+    D_max: float = 10.0        # Dysbiosis carrying capacity (logistic cap on D)
+    k_kupffer: float = 5.0     # Kupffer-cell first-order endotoxin clearance (1/day)
 
     @property
     def ebv_multiplier(self):
@@ -79,7 +83,9 @@ def gut_liver_rhs(t, y, params, apply_therapy):
     p = np.clip(y[0], 0.01, 1.0)
     f = max(0.0, y[1])
     delta = np.clip(y[2], params.delta_min, params.delta_max)
-    lam = np.clip(y[3], 0.01, 1.0)
+    # lam is not clipped: its loss term is proportional to lam, so it stays >= 0
+    # on its own, and clipping would decouple the rate from the stored state.
+    lam = max(0.0, y[3])
     D = max(0.1, y[4])
 
     phi_gut = 5.0 * (1.0 + 0.35 * params.gc_stage * params.gc_risk_factor) * params.ebv_multiplier
@@ -87,12 +93,13 @@ def gut_liver_rhs(t, y, params, apply_therapy):
     P_percolation = (phi_gut * (1.0 + 0.5 * D)) / (1.0 + np.exp((p - params.p_c) / params.sigma))
     R_sieve = 2.5 * f * ((delta / params.delta_max) ** 2) / (1.0 + 0.3 * f)
     R_network = lam * f
+    R_kupffer = params.k_kupffer * f
 
-    dp_dt = -0.15 * D * (f / (1.0 + f)) + 0.02 * (1.0 - p)
-    df_dt = P_percolation - R_sieve - R_network
+    dp_dt = -0.15 * D * (f / (1.0 + f)) * p + 0.02 * (1.0 - p)  # loss scales with remaining junctions
+    df_dt = P_percolation - R_sieve - R_network - R_kupffer
     ddelta_dt = -0.70 * f * (delta - params.delta_min) + 0.1 * (params.delta_max - delta)
     dlam_dt = -0.25 * (D / (1.0 + D)) * f * lam + 0.04 * (0.92 - lam)
-    dD_dt = 0.20 * f * D - 0.05 * (D - 1.0)
+    dD_dt = 0.20 * (f / (1.0 + f)) * D * (1.0 - D / params.D_max) - 0.05 * (D - 1.0)
 
     if apply_therapy:
         dp_dt += 0.40 * (0.85 - p)          # Oral Butyrate / SCFA tight-junction rescue
